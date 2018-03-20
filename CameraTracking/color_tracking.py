@@ -4,8 +4,11 @@ import serial
 import os
 
 # open serial communication
+run_serial = False
 port_name = os.popen("ls /dev/ttyACM*").read().rstrip()
-port = serial.Serial(port_name)
+if (port_name != ""):
+    run_serial = True
+    port = serial.Serial(port_name)
 
 kernel = np.ones((5,5),np.uint8)
 
@@ -86,11 +89,10 @@ while(1):
 
     # find contours in the mask and initialize the current
     # (x, y) center of the ball
-    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-    cv2.CHAIN_APPROX_SIMPLE)[-2]
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     center = None
  
-	# only proceed if at least one contour was found
+    # only proceed if at least one contour was found
     if len(cnts) > 0:
         # find the largest contour in the mask, then use
         # it to compute the minimum enclosing circle and
@@ -100,7 +102,7 @@ while(1):
         M = cv2.moments(c)
         if M["m00"] != 0:
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-            port.write(str(center)+"\n")
+            port.write(str(center)+"\n") if run_serial else None
         
         # only proceed if the radius meets a minimum size
         if radius > 10:
