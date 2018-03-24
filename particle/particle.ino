@@ -14,7 +14,10 @@ const int sck         = A3; // (pin 6)
 const int mosi        = A5; // (pin 4)
                             // Gnd (pin 3 and pin 5)
                             // +5V (pin 7)
-const int ce           = D6;// to set TX or RX modes for radio
+const int ce          = D6; // to set TX or RX modes for radio
+
+const int azimuth_pin = TX;
+const int pitch_pin   = RX;
 
 RF24 radio(ce, ss_radio); // CE, CSN
 const byte address[][6] = {"00001","00002"};
@@ -54,6 +57,9 @@ int bias_voltage    = 80;       // Datasheet spec - do not change!!!!!!
 double analog_bias  = (bias_voltage*65535)/160 + 0.5;
 int dig_bias        = (int) analog_bias;
 int data;
+int pitch_servo_pos   = 1800; // level
+int azimuth_servo_pos = 1500; // midway point
+Servo pitch_servo, azimuth_servo;
 
 // Required constants
 volatile double difX, difY, incX, incY;
@@ -65,6 +71,9 @@ double bufY[BUF_SIZE] = {};
 int p = 0;
 int q = 1;
 int serial_counter = 0;
+
+void azimuth_write(int pos);
+void pitch_write(int pos);
 
 void setup() {
   pinMode(enable_pin, OUTPUT);
@@ -94,6 +103,13 @@ void setup() {
   radio.setPALevel(RF24_PA_MIN);
   radio.setAutoAck(0,false);
   radio.startListening();
+
+  //pitch_servo.attach(pitch_pin);
+  azimuth_servo.attach(azimuth_pin);
+  //pitch_servo.writeMicroseconds(pitch_servo_pos);
+  azimuth_servo.writeMicroseconds(azimuth_servo_pos);
+  delay(3000); //wait for servos to move into position
+  
 }
 
 void loop() {
@@ -108,7 +124,7 @@ void loop() {
 
   while(1) {
     while(! radio.available()); //wait for new communication
-    radio.read(&radio_data, sizeof(radio_data)*2);
+    radio.read(&radio_data, sizeof(radio_data[0])*2);
     p++;
     bufX[p] = difX;
     bufY[p] = difY;
@@ -122,17 +138,42 @@ void loop() {
     difY += incY;
     difX += (double)(radio_data[0])/127.0 * inc;
     difY += (double)(radio_data[1])/127.0 * inc;
+
+    if (difX > 10){
+      azimuth_servo_pos ++;
+      azimuth_write(azimuth_servo_pos);
+    }
+    else if (difX < -10){
+      azimuth_servo_pos --;
+      azimuth_write(azimuth_servo_pos);
+    }
+    
     setChannels(difX, difY);
 
+    //Serial.print(radio_data[0]);
+    //Serial.print(',');
+    //Serial.println(radio_data[1]);
+    
     serial_counter++;
     if (serial_counter > 50){
-      Serial.print(incX);
+      Serial.print(difX);
       Serial.print(',');
-      Serial.println(incY);
+      Serial.print(difY);
+      Serial.print(';');
+      Serial.println(azimuth_servo_pos);
       serial_counter = 0;
     }
   }
   powerdown(); //Always power down at the end to disable the MEMS output.. If you don't do this and disconnect the power you may break the MEMS
+}
+
+void azimuth_write(int pos){
+  if (pos < 1200 or pos > 1800) return;
+  azimuth_servo.writeMicroseconds(pos);
+}
+void pitch_write(int pos){
+  if (pos < 1600 or pos > 2000) return;
+  pitch_servo.writeMicroseconds(pos);
 }
 
 // All functions for this to work
