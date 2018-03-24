@@ -76,6 +76,7 @@ int serial_counter = 0;
 const double ki=0, kp=1, kd=0;
 
 void azimuth_write(int pos);
+int azimuth_controller_update(double mems_pos);
 void pitch_write(int pos);
 
 void setup() {
@@ -142,6 +143,9 @@ void loop() {
     difX += (double)(radio_data[0])/127.0 * inc;
     difY += (double)(radio_data[1])/127.0 * inc;
 
+    azimuth_servo_pos = azimuth_controller_update(difX);
+    azimuth_write(azimuth_servo_pos);
+    /*
     if (difX > 10){
       azimuth_servo_pos ++;
       azimuth_write(azimuth_servo_pos);
@@ -150,6 +154,7 @@ void loop() {
       azimuth_servo_pos --;
       azimuth_write(azimuth_servo_pos);
     }
+    */
     
     setChannels(difX, difY);
 
