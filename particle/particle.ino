@@ -59,6 +59,8 @@ int dig_bias        = (int) analog_bias;
 int data;
 int pitch_servo_pos   = 1800; // level
 int azimuth_servo_pos = 1500; // midway point
+int azimuth_ctl_i_acc = 0;
+int azimuth_ctl_d_last = 0;
 Servo pitch_servo, azimuth_servo;
 
 // Required constants
@@ -71,6 +73,7 @@ double bufY[BUF_SIZE] = {};
 int p = 0;
 int q = 1;
 int serial_counter = 0;
+const double ki=0, kp=1, kd=0;
 
 void azimuth_write(int pos);
 void pitch_write(int pos);
@@ -165,6 +168,21 @@ void loop() {
     }
   }
   powerdown(); //Always power down at the end to disable the MEMS output.. If you don't do this and disconnect the power you may break the MEMS
+}
+
+int azimuth_controller_update(double mems_pos) {
+    const double ki = 0.0, kp=0.1, kd=0.0;
+    static double err_i = 0;
+    static double mems_last = 0;
+    double err_p, err_d;
+
+    err_i += mems_pos;
+    err_p = mems_pos;
+    err_d = mems_pos - mems_last;
+
+    mems_last = mems_pos;
+
+    return (int)(1500 + (err_i * ki) + (err_p * kp) + (err_d * kd));
 }
 
 void azimuth_write(int pos){
