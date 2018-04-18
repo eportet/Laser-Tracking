@@ -2,6 +2,8 @@
 #define PITCH_SERVO TIM3->CCR1
 #define CLOCK_PRESCALER 4
 #define MULTIPLIER      12
+#define X_MAX      9.25
+#define Y_MAX      6.25
 
 #include <SPI.h>
 #include "nRF24L01.h"
@@ -10,6 +12,8 @@
 #include "math.h"
 
 SYSTEM_MODE(MANUAL);
+
+String inString = "";
 
 const int enable_pin  = D7; // (pin 1) pin to enable MEMS output
 const int fclk_pin    = D0; // (pin 2) pin to set frequency of Bessel low pass filter
@@ -27,7 +31,7 @@ const int pitch_pin   = D3;
 int cycle_count = 1;
 
 RF24 radio(ce, ss_radio); // CE, CSN
-byte addresses[][6] = {"1Node","2Node"};
+const byte address[][6] = {"00001","00002"};
 int8_t radio_data[2] = {0,0};
 
 int full_reset                  = 2621441; //Initialization to set up DAC
@@ -68,35 +72,8 @@ int dig_bias        = (int) analog_bias;
 int data;
 double pitch_servo_pos   = 1000; // level
 double azimuth_servo_pos = 1500; // midway point
-Servo pitch_servo, azimuth_servo;
 
-// Required constants
-volatile double difX, difY, incX, incY, aX, aY, sum_NLPFX, sum_NLPFY, sum_PLPFX, sum_PLPFY;
-const double inc = 0.8;
-const double bias = 0;
-int right = 0;
-int up = 0;
-const double initX = -5;
-const double initY = 5;
-double bufX[BUF_SIZE] = {};
-double bufY[BUF_SIZE] = {};
-double NLPFX[NOISE_LPF_SIZE] = {};
-double NLPFY[NOISE_LPF_SIZE] = {};
-double PLPFX[POSITION_LPF_SIZE] = {};
-double PLPFY[POSITION_LPF_SIZE] = {};
-int p = 0;
-int q = 1;
-int pNL = 0;
-int qNL = 1;
-int pPL = 0;
-int qPL = 1;
-int serial_counter = 1;
-int servo_counter  = 1;
-
-void azimuth_write(double pos);
-void azimuth_controller_update(double mems_pos);
-void pitch_write(double pos);
-void pitch_controller_update(double mems_pos);
+double difX,difY,originX,originY;
 
 void setup() {
   pinMode(enable_pin, OUTPUT);
@@ -122,149 +99,81 @@ void setup() {
   Serial.begin();
   
   radio.begin();
+  radio.openReadingPipe(0, address[0]);
   radio.setPALevel(RF24_PA_MIN);
-  radio.openReadingPipe(1, addresses[0]);
-  //radio.setAutoAck(0,false);
+  radio.setAutoAck(0,false);
   radio.startListening();
-
-  servos_setup();
-  //pitch_servo.attach(pitch_pin);
-  //azimuth_servo.attach(azimuth_pin);
-  //pitch_servo.writeMicroseconds(pitch_servo_pos);
-  //azimuth_servo.writeMicroseconds(azimuth_servo_pos);
-  //delay(2000); //wait for servos to move into position
 }
 
 void loop() {
   // Set analog voltage X+, X-, Y+, Y- from center (analog_bias) always at 80 V
   // Max voltage is 157 so max analog voltage is 157 - if you go beyond 157, the DAC will set to 80 V and your code won't work.
 
-  difX = initX; //Can be positive or negative
-  difY = initY;
-  for (unsigned int k = 0 ; k < BUF_SIZE ; k++){
-    bufX[k] = initX;
-    bufY[k] = initY;
-  }
-  sum_NLPFX = 0;
-  sum_NLPFY = 0;
-  for (unsigned int k = 0 ; k < NOISE_LPF_SIZE ; k++){
-    NLPFX[k] = 0;
-    NLPFY[k] = 0;
-  }
-  sum_PLPFX = 0;
-  sum_PLPFY = 0;
-  for (unsigned int k = 0 ; k < POSITION_LPF_SIZE ; k++){
-    PLPFX[k] = initX;
-    PLPFY[k] = initY;
-    sum_PLPFX += initX;
-    sum_PLPFY += initY;
-  }
-  incX = 0;
-  incY = 0;
+  difX = 0; //Can be positive or negative
+  difY = 0;
+  bool setting_up = true;
   setChannels(difX, difY);
-
-  while(1) {
+  while(setting_up)
+    {
+    inString = "";
+    while (Serial.available() > 0) 
+        {
+        int inChar = Serial.read();
+        if (isDigit(inChar)) {
+          // convert the incoming byte to a char and add it to the string:
+          inString += (char)inChar;
+        }
+        else if (inChar == ',') {
+          difX = inString.toInt()/100.0;
+          inString = "";
+        }
+        else if (inChar == '\n') {
+          difY = inString.toInt()/100.0;
+          Serial.print("Moving to ");
+          Serial.print(difX);
+          Serial.print(',');
+          Serial.println(difY);
+        }
+        else if (inChar == 'c'){
+          setting_up = false;
+          break;
+        }
+      }
+      setChannels(-difX, difY);
+    }
+  originX = -difX;
+  originY = difY;
+  Serial.print("continuing ");
+  delay(5000);
+  for (double x = originX-4 ; x < originX+4 ; x += 0.01)
+    {
     while(! radio.available()); //wait for new communication
     radio.read(&radio_data, sizeof(radio_data[0])*2);
-    
-    pNL++;
-    if (pNL>=NOISE_LPF_SIZE) pNL=0;
-    sum_NLPFX -= NLPFX[pNL];
-    sum_NLPFY -= NLPFY[pNL];
-    NLPFX[pNL] = (double)(radio_data[0])/127.0;
-    NLPFY[pNL] = (double)(radio_data[1])/127.0;
-    sum_NLPFX += NLPFX[pNL];
-    sum_NLPFY += NLPFY[pNL];
-    aX = sum_NLPFX / NOISE_LPF_SIZE;
-    aY = sum_NLPFY / NOISE_LPF_SIZE;
-
-    difX += aX * inc;
-    difY += aY * inc;
-
-    pPL++;
-    if (pPL>=POSITION_LPF_SIZE) pPL=0;
-    sum_PLPFX -= PLPFX[pPL];
-    sum_PLPFY -= PLPFY[pPL];
-    PLPFX[pPL] = difX;
-    PLPFY[pPL] = difY;
-    sum_PLPFX += PLPFX[pPL];
-    sum_PLPFY += PLPFY[pPL];
-    difX = sum_PLPFX / POSITION_LPF_SIZE;
-    difY = sum_PLPFY / POSITION_LPF_SIZE;
-    
-    p++;
-    if (p>=BUF_SIZE) p=0;
-    q = p+1;
-    if (q>=BUF_SIZE) q=0;
-    bufX[p] = difX;
-    bufY[p] = difY;
-    incX = (bufX[p]-bufX[q])/BUF_SIZE;
-    incY = (bufY[p]-bufY[q])/BUF_SIZE;
-    
-    difX += incX;
-    difY += incY;
-
-    /*azimuth_controller_update(difY-initY);
-    azimuth_write(azimuth_servo_pos);
-    delayMicroseconds(100);
-    pitch_controller_update(difX-initX);
-    pitch_write(pitch_servo_pos);*/
-
-    setChannels(difX, difY);
-
-    Serial.print(aX);
+    setChannels(x, originY);
+    Serial.print(x);
     Serial.print(',');
-    Serial.print(aY);
+    Serial.print(originY);
     Serial.print(',');
-    Serial.print(difX);
+    Serial.print((double)(radio_data[0])/127.0*X_MAX);
     Serial.print(',');
-    Serial.print(difY);
-    Serial.print(',');
-    Serial.println(servo_counter);
-    serial_counter++;
-    //servo_counter++;
-    
-    if (serial_counter > 50){
-      //Serial.print(';');
-      //Serial.print(azimuth_servo_pos);
-      //Serial.print(',');
-      //Serial.println(pitch_servo_pos);
-      serial_counter = 0;
+    Serial.println((double)(radio_data[1])/127.0*Y_MAX);
+    delay(10);
     }
-    if (servo_counter > 400){
-      //Serial.print(';');
-      //Serial.print(azimuth_servo_pos);
-      //Serial.print(',');
-      //Serial.println(pitch_servo_pos);
-      azimuth_increment();
-      servo_counter = 0;
+  for (double y = originY-4 ; y < originY+4 ; y += 0.01)
+    {
+    while(! radio.available()); //wait for new communication
+    radio.read(&radio_data, sizeof(radio_data[0])*2);
+    setChannels(originX, y);
+    Serial.print(originX);
+    Serial.print(',');
+    Serial.print(y);
+    Serial.print(',');
+    Serial.print((double)(radio_data[0])/127.0*X_MAX);
+    Serial.print(',');
+    Serial.println((double)(radio_data[1])/127.0*Y_MAX);
+    delay(10);
     }
-    
-  }
   powerdown(); //Always power down at the end to disable the MEMS output.. If you don't do this and disconnect the power you may break the MEMS
-}
-
-void azimuth_controller_update(double mems_pos) {
-    static const double kp=0.01;
-    double err_p;
-    err_p = -mems_pos;
-    azimuth_servo_pos += err_p * kp;
-}
-
-void pitch_controller_update(double mems_pos) {
-    static const double kp=0.01;
-    double err_p;
-    err_p = -mems_pos;
-    pitch_servo_pos += err_p * kp;
-}
-
-void azimuth_write(double pos){
-  if (pos < 800 or pos > 2000) return;
-  azimuth_servo.writeMicroseconds((int)(pos));
-}
-void pitch_write(double pos){
-  if (pos < 800 or pos > 1500) return;
-  //pitch_servo.writeMicroseconds((int)(pos));
 }
 
 // All functions for this to work
