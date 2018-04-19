@@ -2,6 +2,13 @@
 #define PITCH_SERVO TIM3->CCR1
 #define CLOCK_PRESCALER 4
 #define MULTIPLIER      12
+#define X_MAX      9.25
+#define Y_MAX      6.25
+#define pi 3.1415926
+#define BUF_SIZE 100
+#define NOISE_LPF_SIZE 4
+#define POSITION_LPF_SIZE 4
+#define inc 0.2
 
 #include <SPI.h>
 #include "nRF24L01.h"
@@ -46,11 +53,6 @@ int disable_all_dac_channels    = 2097215; //Power Down
 #define AD56X4_CHANNEL_D                               3 //B00000011
 #define AD56X4_CHANNEL_ALL                             7 //B00000111
 
-#define pi 3.1415926
-#define BUF_SIZE 100
-#define NOISE_LPF_SIZE 4
-#define POSITION_LPF_SIZE 4
-
 // commands to write to LDAC buffer, then at channel_D write to DAC register
 int writecommand[]  = {AD56X4_COMMAND_WRITE_INPUT_REGISTER  | AD56X4_CHANNEL_A,
                        AD56X4_COMMAND_WRITE_INPUT_REGISTER  | AD56X4_CHANNEL_B,
@@ -72,7 +74,6 @@ Servo pitch_servo, azimuth_servo;
 
 // Required constants
 volatile double difX, difY, incX, incY, aX, aY, sum_NLPFX, sum_NLPFY, sum_PLPFX, sum_PLPFY;
-const double inc = 0.8;
 const double bias = 0;
 int right = 0;
 int up = 0;
@@ -123,7 +124,8 @@ void setup() {
   
   radio.begin();
   radio.setPALevel(RF24_PA_MIN);
-  radio.openReadingPipe(1, addresses[0]);
+  radio.openWritingPipe(addresses[0]);
+  radio.openReadingPipe(1,addresses[1]);
   //radio.setAutoAck(0,false);
   radio.startListening();
 
@@ -164,24 +166,30 @@ void loop() {
   setChannels(difX, difY);
 
   while(1) {
+    unsigned long a = micros();
     while(! radio.available()); //wait for new communication
+    unsigned long b = micros();
+    Serial.println(b-a);
     radio.read(&radio_data, sizeof(radio_data[0])*2);
     
-    pNL++;
+    /*pNL++;
     if (pNL>=NOISE_LPF_SIZE) pNL=0;
     sum_NLPFX -= NLPFX[pNL];
     sum_NLPFY -= NLPFY[pNL];
-    NLPFX[pNL] = (double)(radio_data[0])/127.0;
-    NLPFY[pNL] = (double)(radio_data[1])/127.0;
+    NLPFX[pNL] = (double)(radio_data[0])/127.0*X_MAX/7;
+    NLPFY[pNL] = (double)(radio_data[1])/127.0*Y_MAX/4;
     sum_NLPFX += NLPFX[pNL];
     sum_NLPFY += NLPFY[pNL];
     aX = sum_NLPFX / NOISE_LPF_SIZE;
     aY = sum_NLPFY / NOISE_LPF_SIZE;
+    */
+    aX = (double)(radio_data[0])/127.0*X_MAX/7;
+    aY = (double)(radio_data[1])/127.0*Y_MAX/4;
 
     difX += aX * inc;
     difY += aY * inc;
 
-    pPL++;
+   /* pPL++;
     if (pPL>=POSITION_LPF_SIZE) pPL=0;
     sum_PLPFX -= PLPFX[pPL];
     sum_PLPFY -= PLPFY[pPL];
@@ -190,7 +198,7 @@ void loop() {
     sum_PLPFX += PLPFX[pPL];
     sum_PLPFY += PLPFY[pPL];
     difX = sum_PLPFX / POSITION_LPF_SIZE;
-    difY = sum_PLPFY / POSITION_LPF_SIZE;
+    difY = sum_PLPFY / POSITION_LPF_SIZE;*/
     
     p++;
     if (p>=BUF_SIZE) p=0;
@@ -210,9 +218,7 @@ void loop() {
     pitch_controller_update(difX-initX);
     pitch_write(pitch_servo_pos);*/
 
-    setChannels(difX, difY);
-
-    Serial.print(aX);
+    /*Serial.print(aX);
     Serial.print(',');
     Serial.print(aY);
     Serial.print(',');
@@ -220,11 +226,14 @@ void loop() {
     Serial.print(',');
     Serial.print(difY);
     Serial.print(',');
-    Serial.println(servo_counter);
+    Serial.println(servo_counter);*/
+
+    setChannels(difX, difY);
     serial_counter++;
     //servo_counter++;
     
     if (serial_counter > 50){
+      
       //Serial.print(';');
       //Serial.print(azimuth_servo_pos);
       //Serial.print(',');

@@ -31,7 +31,7 @@ const int pitch_pin   = D3;
 int cycle_count = 1;
 
 RF24 radio(ce, ss_radio); // CE, CSN
-const byte address[][6] = {"00001","00002"};
+byte addresses[][6] = {"1Node","2Node"};
 int8_t radio_data[2] = {0,0};
 
 int full_reset                  = 2621441; //Initialization to set up DAC
@@ -99,9 +99,10 @@ void setup() {
   Serial.begin();
   
   radio.begin();
-  radio.openReadingPipe(0, address[0]);
   radio.setPALevel(RF24_PA_MIN);
-  radio.setAutoAck(0,false);
+  radio.openWritingPipe(addresses[0]);
+  radio.openReadingPipe(1,addresses[1]);
+  //radio.setAutoAck(0,false);
   radio.startListening();
 }
 
