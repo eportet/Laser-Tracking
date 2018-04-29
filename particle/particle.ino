@@ -16,6 +16,8 @@ const int mosi        = A5; // (pin 4)
                             // +5V (pin 7)
 const int ce          = D6; // to set TX or RX modes for radio
 
+const int mon_pin     = WKP; // WKP is monitor pin for Lidar
+
 const int azimuth_pin = TX;
 const int pitch_pin   = RX;
 
@@ -74,6 +76,14 @@ int p = 0;
 int q = 1;
 int serial_counter = 0;
 const double ki=0, kp=1, kd=0;
+
+double pulseWidth=0.0; // radial distance
+double az=0.0; // azimuth angle of laser
+double el=0.0; // elevation angle of laser
+double h=0.0; // sqrt(x^2+y^2)
+double x=0.0;
+double y=0.0;
+double z=0.0;
 
 void azimuth_write(int pos);
 int azimuth_controller_update(double mems_pos);
@@ -135,6 +145,9 @@ void loop() {
     q = p+1;
     if (p>=BUF_SIZE) p=0;
     if (q>=BUF_SIZE) q=0;
+    
+    pulseWidth = pulseIn(WKP, HIGH); // Count how long the pulse is high in microseconds
+    pulseWidth = pulseWidth/1000; // Get radial distance in meters
 
     incX = (bufX[p]-bufX[q])/BUF_SIZE;
     incY = (bufY[p]-bufY[q])/BUF_SIZE;
@@ -143,6 +156,13 @@ void loop() {
     difX += (double)(radio_data[0])/127.0 * inc;
     difY += (double)(radio_data[1])/127.0 * inc;
 
+    az=difX*(2.0/pi*360.0/6*50); // volts to radians
+    el=difY*(2.0/pi*360.0/6*50); // volts to radians
+    h=pulseWidth*cos(el);
+    z=pulseWidth*sin(el);
+    //incX=atan(radio_data[0]/radio_data[1])/2.0/pi*360.0/6*50;
+    //incY=atan(z/sqrt(radio_data[0]^2+radio_data[1]^2))/(2.0/pi*360.0/6*50); //radians to volts
+    
     azimuth_servo_pos = azimuth_controller_update(difX);
     azimuth_write(azimuth_servo_pos);
     /*
