@@ -1,0 +1,370 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:switches
+LIBS:relays
+LIBS:motors
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:sensor-cache
+EELAYER 25 0
+EELAYER END
+$Descr User 5906 4000
+encoding utf-8
+Sheet 2 25
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L LED D1
+U 1 1 5A7F93E1
+P 3400 950
+AR Path="/5A7F939C/5A7F93E1" Ref="D1"  Part="1" 
+AR Path="/5A7FB127/5A7F93E1" Ref="D3"  Part="1" 
+AR Path="/5A7FB52E/5A7F93E1" Ref="D5"  Part="1" 
+AR Path="/5A7FB531/5A7F93E1" Ref="D7"  Part="1" 
+AR Path="/5A7FBC84/5A7F93E1" Ref="D9"  Part="1" 
+AR Path="/5A7FBC87/5A7F93E1" Ref="D11"  Part="1" 
+AR Path="/5A7FBC8A/5A7F93E1" Ref="D13"  Part="1" 
+AR Path="/5A7FBC8D/5A7F93E1" Ref="D15"  Part="1" 
+AR Path="/5A7FC4A0/5A7F93E1" Ref="D17"  Part="1" 
+AR Path="/5A7FC4A3/5A7F93E1" Ref="D19"  Part="1" 
+AR Path="/5A7FC4A6/5A7F93E1" Ref="D21"  Part="1" 
+AR Path="/5A7FC4A9/5A7F93E1" Ref="D23"  Part="1" 
+AR Path="/5A7FC4AC/5A7F93E1" Ref="D25"  Part="1" 
+AR Path="/5A7FC4AF/5A7F93E1" Ref="D27"  Part="1" 
+AR Path="/5A7FC4B2/5A7F93E1" Ref="D29"  Part="1" 
+AR Path="/5A7FC4B5/5A7F93E1" Ref="D31"  Part="1" 
+AR Path="/5A7FDE62/5A7F93E1" Ref="D33"  Part="1" 
+AR Path="/5A7FDE65/5A7F93E1" Ref="D35"  Part="1" 
+AR Path="/5A7FDE68/5A7F93E1" Ref="D37"  Part="1" 
+AR Path="/5A7FDE6B/5A7F93E1" Ref="D39"  Part="1" 
+AR Path="/5A7FDE6E/5A7F93E1" Ref="D41"  Part="1" 
+AR Path="/5A7FDE71/5A7F93E1" Ref="D43"  Part="1" 
+AR Path="/5A7FDE74/5A7F93E1" Ref="D45"  Part="1" 
+AR Path="/5A7FDE77/5A7F93E1" Ref="D47"  Part="1" 
+AR Path="/5A7FDE7A/5A7F93E1" Ref="D49"  Part="1" 
+F 0 "D3" H 3400 1050 50  0000 C CNN
+F 1 "LED" H 3400 850 50  0000 C CNN
+F 2 "LEDs:LED_1206_HandSoldering" H 3400 950 50  0001 C CNN
+F 3 "" H 3400 950 50  0001 C CNN
+	1    3400 950 
+	0    -1   -1   0   
+$EndComp
+$Comp
+L D_Photo D2
+U 1 1 5A7F9440
+P 2450 1050
+AR Path="/5A7F939C/5A7F9440" Ref="D2"  Part="1" 
+AR Path="/5A7FB127/5A7F9440" Ref="D4"  Part="1" 
+AR Path="/5A7FB52E/5A7F9440" Ref="D6"  Part="1" 
+AR Path="/5A7FB531/5A7F9440" Ref="D8"  Part="1" 
+AR Path="/5A7FBC84/5A7F9440" Ref="D10"  Part="1" 
+AR Path="/5A7FBC87/5A7F9440" Ref="D12"  Part="1" 
+AR Path="/5A7FBC8A/5A7F9440" Ref="D14"  Part="1" 
+AR Path="/5A7FBC8D/5A7F9440" Ref="D16"  Part="1" 
+AR Path="/5A7FC4A0/5A7F9440" Ref="D18"  Part="1" 
+AR Path="/5A7FC4A3/5A7F9440" Ref="D20"  Part="1" 
+AR Path="/5A7FC4A6/5A7F9440" Ref="D22"  Part="1" 
+AR Path="/5A7FC4A9/5A7F9440" Ref="D24"  Part="1" 
+AR Path="/5A7FC4AC/5A7F9440" Ref="D26"  Part="1" 
+AR Path="/5A7FC4AF/5A7F9440" Ref="D28"  Part="1" 
+AR Path="/5A7FC4B2/5A7F9440" Ref="D30"  Part="1" 
+AR Path="/5A7FC4B5/5A7F9440" Ref="D32"  Part="1" 
+AR Path="/5A7FDE62/5A7F9440" Ref="D34"  Part="1" 
+AR Path="/5A7FDE65/5A7F9440" Ref="D36"  Part="1" 
+AR Path="/5A7FDE68/5A7F9440" Ref="D38"  Part="1" 
+AR Path="/5A7FDE6B/5A7F9440" Ref="D40"  Part="1" 
+AR Path="/5A7FDE6E/5A7F9440" Ref="D42"  Part="1" 
+AR Path="/5A7FDE71/5A7F9440" Ref="D44"  Part="1" 
+AR Path="/5A7FDE74/5A7F9440" Ref="D46"  Part="1" 
+AR Path="/5A7FDE77/5A7F9440" Ref="D48"  Part="1" 
+AR Path="/5A7FDE7A/5A7F9440" Ref="D50"  Part="1" 
+F 0 "D4" H 2470 1120 50  0000 L CNN
+F 1 "D_Photo" H 2410 940 50  0000 C CNN
+F 2 "LEDs:LED_1206" H 2400 1050 50  0001 C CNN
+F 3 "" H 2400 1050 50  0001 C CNN
+	1    2450 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R3
+U 1 1 5A7F94B8
+P 2950 1750
+AR Path="/5A7F939C/5A7F94B8" Ref="R3"  Part="1" 
+AR Path="/5A7FB127/5A7F94B8" Ref="R5"  Part="1" 
+AR Path="/5A7FB52E/5A7F94B8" Ref="R7"  Part="1" 
+AR Path="/5A7FB531/5A7F94B8" Ref="R9"  Part="1" 
+AR Path="/5A7FBC84/5A7F94B8" Ref="R11"  Part="1" 
+AR Path="/5A7FBC87/5A7F94B8" Ref="R13"  Part="1" 
+AR Path="/5A7FBC8A/5A7F94B8" Ref="R15"  Part="1" 
+AR Path="/5A7FBC8D/5A7F94B8" Ref="R17"  Part="1" 
+AR Path="/5A7FC4A0/5A7F94B8" Ref="R19"  Part="1" 
+AR Path="/5A7FC4A3/5A7F94B8" Ref="R21"  Part="1" 
+AR Path="/5A7FC4A6/5A7F94B8" Ref="R23"  Part="1" 
+AR Path="/5A7FC4A9/5A7F94B8" Ref="R25"  Part="1" 
+AR Path="/5A7FC4AC/5A7F94B8" Ref="R27"  Part="1" 
+AR Path="/5A7FC4AF/5A7F94B8" Ref="R29"  Part="1" 
+AR Path="/5A7FC4B2/5A7F94B8" Ref="R31"  Part="1" 
+AR Path="/5A7FC4B5/5A7F94B8" Ref="R33"  Part="1" 
+AR Path="/5A7FDE62/5A7F94B8" Ref="R35"  Part="1" 
+AR Path="/5A7FDE65/5A7F94B8" Ref="R37"  Part="1" 
+AR Path="/5A7FDE68/5A7F94B8" Ref="R39"  Part="1" 
+AR Path="/5A7FDE6B/5A7F94B8" Ref="R41"  Part="1" 
+AR Path="/5A7FDE6E/5A7F94B8" Ref="R43"  Part="1" 
+AR Path="/5A7FDE71/5A7F94B8" Ref="R45"  Part="1" 
+AR Path="/5A7FDE74/5A7F94B8" Ref="R47"  Part="1" 
+AR Path="/5A7FDE77/5A7F94B8" Ref="R49"  Part="1" 
+AR Path="/5A7FDE7A/5A7F94B8" Ref="R51"  Part="1" 
+F 0 "R5" V 3030 1750 50  0000 C CNN
+F 1 "R" V 2950 1750 50  0000 C CNN
+F 2 "Resistors_SMD:R_1206_HandSoldering" V 2880 1750 50  0001 C CNN
+F 3 "" H 2950 1750 50  0001 C CNN
+	1    2950 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R4
+U 1 1 5A7F94FF
+P 3400 1750
+AR Path="/5A7F939C/5A7F94FF" Ref="R4"  Part="1" 
+AR Path="/5A7FB127/5A7F94FF" Ref="R6"  Part="1" 
+AR Path="/5A7FB52E/5A7F94FF" Ref="R8"  Part="1" 
+AR Path="/5A7FB531/5A7F94FF" Ref="R10"  Part="1" 
+AR Path="/5A7FBC84/5A7F94FF" Ref="R12"  Part="1" 
+AR Path="/5A7FBC87/5A7F94FF" Ref="R14"  Part="1" 
+AR Path="/5A7FBC8A/5A7F94FF" Ref="R16"  Part="1" 
+AR Path="/5A7FBC8D/5A7F94FF" Ref="R18"  Part="1" 
+AR Path="/5A7FC4A0/5A7F94FF" Ref="R20"  Part="1" 
+AR Path="/5A7FC4A3/5A7F94FF" Ref="R22"  Part="1" 
+AR Path="/5A7FC4A6/5A7F94FF" Ref="R24"  Part="1" 
+AR Path="/5A7FC4A9/5A7F94FF" Ref="R26"  Part="1" 
+AR Path="/5A7FC4AC/5A7F94FF" Ref="R28"  Part="1" 
+AR Path="/5A7FC4AF/5A7F94FF" Ref="R30"  Part="1" 
+AR Path="/5A7FC4B2/5A7F94FF" Ref="R32"  Part="1" 
+AR Path="/5A7FC4B5/5A7F94FF" Ref="R34"  Part="1" 
+AR Path="/5A7FDE62/5A7F94FF" Ref="R36"  Part="1" 
+AR Path="/5A7FDE65/5A7F94FF" Ref="R38"  Part="1" 
+AR Path="/5A7FDE68/5A7F94FF" Ref="R40"  Part="1" 
+AR Path="/5A7FDE6B/5A7F94FF" Ref="R42"  Part="1" 
+AR Path="/5A7FDE6E/5A7F94FF" Ref="R44"  Part="1" 
+AR Path="/5A7FDE71/5A7F94FF" Ref="R46"  Part="1" 
+AR Path="/5A7FDE74/5A7F94FF" Ref="R48"  Part="1" 
+AR Path="/5A7FDE77/5A7F94FF" Ref="R50"  Part="1" 
+AR Path="/5A7FDE7A/5A7F94FF" Ref="R52"  Part="1" 
+F 0 "R6" V 3480 1750 50  0000 C CNN
+F 1 "R" V 3400 1750 50  0000 C CNN
+F 2 "Resistors_SMD:R_1206_HandSoldering" V 3330 1750 50  0001 C CNN
+F 3 "" H 3400 1750 50  0001 C CNN
+	1    3400 1750
+	1    0    0    -1  
+$EndComp
+$Comp
+L Q_NPN_BCE Q1
+U 1 1 5A7F9530
+P 2850 1050
+AR Path="/5A7F939C/5A7F9530" Ref="Q1"  Part="1" 
+AR Path="/5A7FB127/5A7F9530" Ref="Q3"  Part="1" 
+AR Path="/5A7FB52E/5A7F9530" Ref="Q5"  Part="1" 
+AR Path="/5A7FB531/5A7F9530" Ref="Q7"  Part="1" 
+AR Path="/5A7FBC84/5A7F9530" Ref="Q9"  Part="1" 
+AR Path="/5A7FBC87/5A7F9530" Ref="Q11"  Part="1" 
+AR Path="/5A7FBC8A/5A7F9530" Ref="Q13"  Part="1" 
+AR Path="/5A7FBC8D/5A7F9530" Ref="Q15"  Part="1" 
+AR Path="/5A7FC4A0/5A7F9530" Ref="Q17"  Part="1" 
+AR Path="/5A7FC4A3/5A7F9530" Ref="Q19"  Part="1" 
+AR Path="/5A7FC4A6/5A7F9530" Ref="Q21"  Part="1" 
+AR Path="/5A7FC4A9/5A7F9530" Ref="Q23"  Part="1" 
+AR Path="/5A7FC4AC/5A7F9530" Ref="Q25"  Part="1" 
+AR Path="/5A7FC4AF/5A7F9530" Ref="Q27"  Part="1" 
+AR Path="/5A7FC4B2/5A7F9530" Ref="Q29"  Part="1" 
+AR Path="/5A7FC4B5/5A7F9530" Ref="Q31"  Part="1" 
+AR Path="/5A7FDE62/5A7F9530" Ref="Q33"  Part="1" 
+AR Path="/5A7FDE65/5A7F9530" Ref="Q35"  Part="1" 
+AR Path="/5A7FDE68/5A7F9530" Ref="Q37"  Part="1" 
+AR Path="/5A7FDE6B/5A7F9530" Ref="Q39"  Part="1" 
+AR Path="/5A7FDE6E/5A7F9530" Ref="Q41"  Part="1" 
+AR Path="/5A7FDE71/5A7F9530" Ref="Q43"  Part="1" 
+AR Path="/5A7FDE74/5A7F9530" Ref="Q45"  Part="1" 
+AR Path="/5A7FDE77/5A7F9530" Ref="Q47"  Part="1" 
+AR Path="/5A7FDE7A/5A7F9530" Ref="Q49"  Part="1" 
+F 0 "Q3" H 3050 1100 50  0000 L CNN
+F 1 "Q_NPN_BCE" H 3050 1000 50  0000 L CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23_Handsoldering" H 3050 1150 50  0001 C CNN
+F 3 "" H 2850 1050 50  0001 C CNN
+	1    2850 1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Q_NPN_BCE Q2
+U 1 1 5A7F957F
+P 3300 1350
+AR Path="/5A7F939C/5A7F957F" Ref="Q2"  Part="1" 
+AR Path="/5A7FB127/5A7F957F" Ref="Q4"  Part="1" 
+AR Path="/5A7FB52E/5A7F957F" Ref="Q6"  Part="1" 
+AR Path="/5A7FB531/5A7F957F" Ref="Q8"  Part="1" 
+AR Path="/5A7FBC84/5A7F957F" Ref="Q10"  Part="1" 
+AR Path="/5A7FBC87/5A7F957F" Ref="Q12"  Part="1" 
+AR Path="/5A7FBC8A/5A7F957F" Ref="Q14"  Part="1" 
+AR Path="/5A7FBC8D/5A7F957F" Ref="Q16"  Part="1" 
+AR Path="/5A7FC4A0/5A7F957F" Ref="Q18"  Part="1" 
+AR Path="/5A7FC4A3/5A7F957F" Ref="Q20"  Part="1" 
+AR Path="/5A7FC4A6/5A7F957F" Ref="Q22"  Part="1" 
+AR Path="/5A7FC4A9/5A7F957F" Ref="Q24"  Part="1" 
+AR Path="/5A7FC4AC/5A7F957F" Ref="Q26"  Part="1" 
+AR Path="/5A7FC4AF/5A7F957F" Ref="Q28"  Part="1" 
+AR Path="/5A7FC4B2/5A7F957F" Ref="Q30"  Part="1" 
+AR Path="/5A7FC4B5/5A7F957F" Ref="Q32"  Part="1" 
+AR Path="/5A7FDE62/5A7F957F" Ref="Q34"  Part="1" 
+AR Path="/5A7FDE65/5A7F957F" Ref="Q36"  Part="1" 
+AR Path="/5A7FDE68/5A7F957F" Ref="Q38"  Part="1" 
+AR Path="/5A7FDE6B/5A7F957F" Ref="Q40"  Part="1" 
+AR Path="/5A7FDE6E/5A7F957F" Ref="Q42"  Part="1" 
+AR Path="/5A7FDE71/5A7F957F" Ref="Q44"  Part="1" 
+AR Path="/5A7FDE74/5A7F957F" Ref="Q46"  Part="1" 
+AR Path="/5A7FDE77/5A7F957F" Ref="Q48"  Part="1" 
+AR Path="/5A7FDE7A/5A7F957F" Ref="Q50"  Part="1" 
+F 0 "Q4" H 3500 1400 50  0000 L CNN
+F 1 "Q_NPN_BCE" H 3500 1300 50  0000 L CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23_Handsoldering" H 3500 1450 50  0001 C CNN
+F 3 "" H 3300 1350 50  0001 C CNN
+	1    3300 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR017
+U 1 1 5A7F95B4
+P 2200 1950
+AR Path="/5A7F939C/5A7F95B4" Ref="#PWR017"  Part="1" 
+AR Path="/5A7FB127/5A7F95B4" Ref="#PWR019"  Part="1" 
+AR Path="/5A7FB52E/5A7F95B4" Ref="#PWR021"  Part="1" 
+AR Path="/5A7FB531/5A7F95B4" Ref="#PWR023"  Part="1" 
+AR Path="/5A7FBC84/5A7F95B4" Ref="#PWR025"  Part="1" 
+AR Path="/5A7FBC87/5A7F95B4" Ref="#PWR027"  Part="1" 
+AR Path="/5A7FBC8A/5A7F95B4" Ref="#PWR029"  Part="1" 
+AR Path="/5A7FBC8D/5A7F95B4" Ref="#PWR031"  Part="1" 
+AR Path="/5A7FC4A0/5A7F95B4" Ref="#PWR033"  Part="1" 
+AR Path="/5A7FC4A3/5A7F95B4" Ref="#PWR035"  Part="1" 
+AR Path="/5A7FC4A6/5A7F95B4" Ref="#PWR037"  Part="1" 
+AR Path="/5A7FC4A9/5A7F95B4" Ref="#PWR039"  Part="1" 
+AR Path="/5A7FC4AC/5A7F95B4" Ref="#PWR041"  Part="1" 
+AR Path="/5A7FC4AF/5A7F95B4" Ref="#PWR043"  Part="1" 
+AR Path="/5A7FC4B2/5A7F95B4" Ref="#PWR045"  Part="1" 
+AR Path="/5A7FC4B5/5A7F95B4" Ref="#PWR047"  Part="1" 
+AR Path="/5A7FDE62/5A7F95B4" Ref="#PWR049"  Part="1" 
+AR Path="/5A7FDE65/5A7F95B4" Ref="#PWR051"  Part="1" 
+AR Path="/5A7FDE68/5A7F95B4" Ref="#PWR053"  Part="1" 
+AR Path="/5A7FDE6B/5A7F95B4" Ref="#PWR055"  Part="1" 
+AR Path="/5A7FDE6E/5A7F95B4" Ref="#PWR057"  Part="1" 
+AR Path="/5A7FDE71/5A7F95B4" Ref="#PWR059"  Part="1" 
+AR Path="/5A7FDE74/5A7F95B4" Ref="#PWR061"  Part="1" 
+AR Path="/5A7FDE77/5A7F95B4" Ref="#PWR063"  Part="1" 
+AR Path="/5A7FDE7A/5A7F95B4" Ref="#PWR067"  Part="1" 
+F 0 "#PWR019" H 2200 1700 50  0001 C CNN
+F 1 "GND" H 2200 1800 50  0000 C CNN
+F 2 "" H 2200 1950 50  0001 C CNN
+F 3 "" H 2200 1950 50  0001 C CNN
+	1    2200 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L VDD #PWR018
+U 1 1 5A7F95D4
+P 2200 750
+AR Path="/5A7F939C/5A7F95D4" Ref="#PWR018"  Part="1" 
+AR Path="/5A7FB127/5A7F95D4" Ref="#PWR020"  Part="1" 
+AR Path="/5A7FB52E/5A7F95D4" Ref="#PWR022"  Part="1" 
+AR Path="/5A7FB531/5A7F95D4" Ref="#PWR024"  Part="1" 
+AR Path="/5A7FBC84/5A7F95D4" Ref="#PWR026"  Part="1" 
+AR Path="/5A7FBC87/5A7F95D4" Ref="#PWR028"  Part="1" 
+AR Path="/5A7FBC8A/5A7F95D4" Ref="#PWR030"  Part="1" 
+AR Path="/5A7FBC8D/5A7F95D4" Ref="#PWR032"  Part="1" 
+AR Path="/5A7FC4A0/5A7F95D4" Ref="#PWR034"  Part="1" 
+AR Path="/5A7FC4A3/5A7F95D4" Ref="#PWR036"  Part="1" 
+AR Path="/5A7FC4A6/5A7F95D4" Ref="#PWR038"  Part="1" 
+AR Path="/5A7FC4A9/5A7F95D4" Ref="#PWR040"  Part="1" 
+AR Path="/5A7FC4AC/5A7F95D4" Ref="#PWR042"  Part="1" 
+AR Path="/5A7FC4AF/5A7F95D4" Ref="#PWR044"  Part="1" 
+AR Path="/5A7FC4B2/5A7F95D4" Ref="#PWR046"  Part="1" 
+AR Path="/5A7FC4B5/5A7F95D4" Ref="#PWR048"  Part="1" 
+AR Path="/5A7FDE62/5A7F95D4" Ref="#PWR050"  Part="1" 
+AR Path="/5A7FDE65/5A7F95D4" Ref="#PWR052"  Part="1" 
+AR Path="/5A7FDE68/5A7F95D4" Ref="#PWR054"  Part="1" 
+AR Path="/5A7FDE6B/5A7F95D4" Ref="#PWR056"  Part="1" 
+AR Path="/5A7FDE6E/5A7F95D4" Ref="#PWR058"  Part="1" 
+AR Path="/5A7FDE71/5A7F95D4" Ref="#PWR060"  Part="1" 
+AR Path="/5A7FDE74/5A7F95D4" Ref="#PWR062"  Part="1" 
+AR Path="/5A7FDE77/5A7F95D4" Ref="#PWR064"  Part="1" 
+AR Path="/5A7FDE7A/5A7F95D4" Ref="#PWR068"  Part="1" 
+F 0 "#PWR020" H 2200 600 50  0001 C CNN
+F 1 "VDD" H 2200 900 50  0000 C CNN
+F 2 "" H 2200 750 50  0001 C CNN
+F 3 "" H 2200 750 50  0001 C CNN
+	1    2200 750 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3400 1950 3400 1900
+Wire Wire Line
+	3400 1950 2200 1950
+Wire Wire Line
+	2950 1900 2950 1950
+Connection ~ 2950 1950
+Wire Wire Line
+	3400 1600 3400 1550
+Wire Wire Line
+	2950 1600 2950 1250
+Wire Wire Line
+	2950 1350 3100 1350
+Connection ~ 2950 1350
+Wire Wire Line
+	3400 1150 3400 1100
+Wire Wire Line
+	3400 800  3400 750 
+Wire Wire Line
+	3400 750  2200 750 
+Wire Wire Line
+	2200 750  2200 1050
+Wire Wire Line
+	2200 1050 2250 1050
+Wire Wire Line
+	2650 1050 2550 1050
+Wire Wire Line
+	2950 850  2950 750 
+Connection ~ 2950 750 
+Wire Wire Line
+	3400 1100 3550 1100
+Text HLabel 3550 1100 2    60   Output ~ 0
+out
+$EndSCHEMATC
