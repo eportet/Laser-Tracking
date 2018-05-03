@@ -14,12 +14,12 @@ GPIO.setwarnings(False);
 usb = False   # True : Try to communicate with serial
               # False: Do not communicate
 
-windows = 2   # 0: Do not show any windows
+windows = 1   # 0: Do not show any windows
               # 1: Show only the tracked window
               # 2: Show all the windows
 
 # Set the (h,s,v) lower and upper bounds
-# Currently set to a light green hue
+# Currently set to a light green
 lowerbound = (25,30,150)
 upperbound = (90,70,255)
 
@@ -29,6 +29,8 @@ upperbound = (90,70,255)
 
 def main(u, w, lb, ub):
 	cap, port = setup(u, w, lb, ub)
+	dcx = 7.5
+	dcy = 5.5
 
 	##############
 	# BEGIN LOOP #
@@ -71,7 +73,7 @@ def main(u, w, lb, ub):
 			M = cv2.moments(c)
 			if M["m00"] != 0:
 				center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-				moveServo(center[0], center[1], port, u)
+				dcx,dcy = moveServo(center[0], center[1], dcx, dcy, port, u)
 
 			# only proceed if the radius meets a minimum size
 			if radius > 10:
@@ -183,26 +185,24 @@ def getBounds():
 
 	return (hmn,smn,vmn), (hmx,smx,vmx)
 
-def moveServo(x, y, port, u):
-	pan = " "
-	tilt = " "
+def moveServo(x, y, dcx, dcy, port, u):
 
-	# PAN AXIS
-	if x > 240:	# MOVE LEFT
-		pan = "L"
-	elif x < 80:	# MOVE RIGHT
-		pan = "R"
-
-	# TILT AXIS
 	if y > 180:	# MOVE UP
-		tilt = "U"
+		dcy = dcy + 0.05
 	elif y < 60:	# MOVE DOWN
-		tilt = "D"
+		dcy = dcy - 0.05
 
-	if pan != " " or tilt != " ":
-		data = pan + tilt
-		print(data)
-		writeSerial(data, port) if u else None
+	if x > 240:	# MOVE LEFT
+		dcx = dcx + 0.05
+	elif x < 80:	# MOVE RIGHT
+		dcx = dcx - 0.05
+
+	data = str(int(dcx*0.01*20000)) + "," + str(int(dcy*0.01*20000))
+
+	print(data)
+	writeSerial(data, port) if u else None
+
+	return dcx, dcy
 
 
 #####################
