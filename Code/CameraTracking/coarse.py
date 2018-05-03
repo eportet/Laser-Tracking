@@ -14,9 +14,6 @@ GPIO.setwarnings(False);
 usb = False   # True : Try to communicate with serial
               # False: Do not communicate
 
-servo = False # True : Communicate with the servos
-              # False: Do not initiate servos
-
 windows = 2   # 0: Do not show any windows
               # 1: Show only the tracked window
               # 2: Show all the windows
@@ -30,13 +27,8 @@ upperbound = (90,70,255)
 # MAIN FUNCTION #
 #################
 
-def main(u, s, w, lb, ub):
-	# Duty Cycle Values
-	# set to rest values
-	dc_p = 6.0
-	dc_t = 4.5
-
-	cap, port, pwm_p, pwm_t = setup(u, s, w, lb, ub)
+def main(u, w, lb, ub):
+	cap, port = setup(u, w, lb, ub)
 
 	##############
 	# BEGIN LOOP #
@@ -79,8 +71,7 @@ def main(u, s, w, lb, ub):
 			M = cv2.moments(c)
 			if M["m00"] != 0:
 				center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-				dc_p, dc_t = moveServo(center[0],center[1], dc_p, dc_t, pwm_p, pwm_t)
-				writeSerial(usb, center)
+				moveServo(center[0], center[1], port, u)
 
 			# only proceed if the radius meets a minimum size
 			if radius > 10:
@@ -89,14 +80,14 @@ def main(u, s, w, lb, ub):
 				cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
 		# display wanted windows
-		displayWindows(windows, frame, closing, hue, sat, val, lowerbound, upperbound)
+		displayWindows(w, frame, closing, hue, sat, val, lb, ub)
 
 		# exit when 'q' key is pressed
 		k = cv2.waitKey(1) & 0xFF
 		if k == ord("q"):
 			break
 
-	#GPIO.cleanup()
+	GPIO.cleanup()
 	cap.release()
 	cv2.destroyAllWindows()
 
@@ -109,7 +100,7 @@ def main(u, s, w, lb, ub):
 def nothing(x):
 	pass
 
-def setup(u, s, w, lb, ub):
+def setup(u, w, lb, ub):
 	# CAMERA SETUP
 	# sudo modprobe bcm2835-v4l2 makes the Raspberry Pi camera visible
 	kernel = np.ones((5,5),np.uint8)
@@ -128,19 +119,7 @@ def setup(u, s, w, lb, ub):
 	# WINDOWS & TRACKBAR SETUP
 	makeWindows(w, lb, ub)
 
-	# SERVO SETUP
-	pan = 12
-	tilt = 18
-	GPIO.setmode(GPIO.BOARD)
-	GPIO.setup(pan, GPIO.OUT)
-	GPIO.setup(tilt, GPIO.OUT)
-	pwm_p = GPIO.PWM(pan, 50)
-	pwm_t = GPIO.PWM(tilt, 50)
-
-	pwm_p.start(6.0)
-	pwm_t.start(4.5)
-
-	return cap, port, pwm_p, pwm_t
+	return cap, port
 
 def makeWindows (w, lb, ub):
 	if w == 0:
@@ -177,8 +156,8 @@ def displayWindows(windows, frame, closing, hue, sat, val, lowerbound, upperboun
 			cv2.imshow('ValComp',vthresh)
 			cv2.imshow('closing',closing)
 
-def writeSerial(usb, data):
-	port.write(str(data)+"\n") if usb else None
+def writeSerial(data, port):
+	port.write(str(data)+"\n")
 
 def makeTrackbars(lb, ub):
 	# Creating track bar for min and max for hue, saturation and value
@@ -204,30 +183,31 @@ def getBounds():
 
 	return (hmn,smn,vmn), (hmx,smx,vmx)
 
-def moveServo(x, y, dcx, dcy, pwm_p, pwm_t):
-	print("Moving Servo")
-	if y > 180 and dcy < 7.5:	# MOVE UP
-		dcy = dcy + 0.05
-		print("UP y:" + str(y) + " dc: " + str(dcy))
-	elif y < 60 and dcy > 3:	# MOVE DOWN
-		dcy = dcy - 0.05
-		print("DOWN y:" + str(y) + " dc: " + str(dcy))
+def moveServo(x, y, port, u):
+	pan = " "
+	tilt = " "
 
-	if x > 240 and dcx < 10.25:	# MOVE LEFT
-		dcx = dcx + 0.05
-		print("LEFT x:" + str(x) + " dc: " + str(dcx))
-	elif x < 80 and dcx > 2.25:	# MOVE RIGHT
-		dcx = dcx - 0.05
-		print("RIGHT x:" + str(x) + " dc: " + str(dcx))
+	# PAN AXIS
+	if x > 240:	# MOVE LEFT
+		pan = "L"
+	elif x < 80:	# MOVE RIGHT
+		pan = "R"
 
-	pwm_p.ChangeDutyCycle(dcx)
-	pwm_t.ChangeDutyCycle(dcy)
+	# TILT AXIS
+	if y > 180:	# MOVE UP
+		tilt = "U"
+	elif y < 60:	# MOVE DOWN
+		tilt = "D"
 
-	return dcx, dcy
+	if pan != " " or tilt != " ":
+		data = pan + tilt
+		print(data)
+		writeSerial(data, port) if u else None
+
 
 #####################
 # RUN MAIN FUNCTION #
 #####################
 
 if __name__ == "__main__":
-	main(usb, servo, windows, lowerbound, upperbound)
+	main(usb, windows, lowerbound, upperbound)
