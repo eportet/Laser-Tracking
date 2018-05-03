@@ -5,48 +5,44 @@ import os
 import RPi.GPIO as GPIO
 import time
 
+GPIO.setwarnings(False);
+
+####################
+# GLOBAL VARIABLES #
+####################
+
+usb = False   # True : Try to communicate with serial
+              # False: Do not communicate
+
+servo = False # True : Communicate with the servos
+              # False: Do not initiate servos
+
+windows = 2   # 0: Do not show any windows
+              # 1: Show only the tracked window
+              # 2: Show all the windows
+
+# Set the (h,s,v) lower and upper bounds
+# Currently set to a light green hue
+lowerbound = (25,30,150)
+upperbound = (90,70,255)
+
 #################
 # MAIN FUNCTION #
 #################
 
-
 def main(u, s, w, lb, ub):
-
-	####################
-	# GLOBAL VARIABLES #
-	####################
-
-	usb = False		# True : Try to communicate with serial
-					# False: Do not communicate
-
-	servo = True	# True : Communicate with the servos
-					# False: Do not initiate servos
-
-	windows = 2		# 0: Do not show any windows
-					# 1: Show only the tracked window
-					# 2: Show all the windows
-
-	# Set the (h,s,v) lower and upper bounds
-	lowerbound = (0,80,80)
-	upperbound = (10,255,200)
-
 	# Duty Cycle Values
 	# set to rest values
 	dc_p = 6.0
 	dc_t = 4.5
 
-	cap, port, pwm_p, pwm_t = setup(usb, servo, windows, lowerbound, upperbound)
+	cap, port, pwm_p, pwm_t = setup(u, s, w, lb, ub)
 
 	##############
 	# BEGIN LOOP #
 	##############
 
 	while(1):
-
-		# MOVING SERVO
-		#pwm_p.ChangeDutyCycle(dc_p)
-		pwm_t.ChangeDutyCycle(dc_t)
-
 		# Read frame
 		_, frame = cap.read()
 
@@ -83,8 +79,8 @@ def main(u, s, w, lb, ub):
 			M = cv2.moments(c)
 			if M["m00"] != 0:
 				center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-				#dc_p, dc_t = moveServo(center[0],center[1], dc_p, dc_t)
-				port.write(str(center)+"\n") if usb else None
+				dc_p, dc_t = moveServo(center[0],center[1], dc_p, dc_t, pwm_p, pwm_t)
+				writeSerial(usb, center)
 
 			# only proceed if the radius meets a minimum size
 			if radius > 10:
@@ -93,25 +89,7 @@ def main(u, s, w, lb, ub):
 				cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
 		# display wanted windows
-		if windows == 1 or windows == 2:
-
-			frame = np.rot90(np.rot90(frame)) # Rotate frame
-			cv2.imshow('tracking',frame)
-
-			if windows == 2:
-				hthresh = cv2.inRange(np.array(hue), np.array(lowerbound[0]), np.array(upperbound[0]))
-				sthresh = cv2.inRange(np.array(sat), np.array(lowerbound[1]), np.array(upperbound[1]))
-				vthresh = cv2.inRange(np.array(val), np.array(lowerbound[2]), np.array(upperbound[2]))
-
-				hthresh = np.rot90(np.rot90(hthresh)) # Rotate frame
-				sthresh = np.rot90(np.rot90(sthresh)) # Rotate frame
-				vthresh = np.rot90(np.rot90(vthresh)) # Rotate frame
-
-				#Show the result in frames
-				cv2.imshow('HueComp',hthresh)
-				cv2.imshow('SatComp',sthresh)
-				cv2.imshow('ValComp',vthresh)
-				cv2.imshow('closing',closing)
+		displayWindows(windows, frame, closing, hue, sat, val, lowerbound, upperbound)
 
 		# exit when 'q' key is pressed
 		k = cv2.waitKey(1) & 0xFF
@@ -177,6 +155,31 @@ def makeWindows (w, lb, ub):
 		cv2.namedWindow('tracking')
 		makeTrackbars(lb, ub)
 
+def displayWindows(windows, frame, closing, hue, sat, val, lowerbound, upperbound):
+	if windows == 1 or windows == 2:
+
+		frame = np.rot90(np.rot90(frame)) # Rotate frame
+		cv2.imshow('tracking',frame)
+
+		if windows == 2:
+			hthresh = cv2.inRange(np.array(hue), np.array(lowerbound[0]), np.array(upperbound[0]))
+			sthresh = cv2.inRange(np.array(sat), np.array(lowerbound[1]), np.array(upperbound[1]))
+			vthresh = cv2.inRange(np.array(val), np.array(lowerbound[2]), np.array(upperbound[2]))
+
+			hthresh = np.rot90(np.rot90(hthresh)) # Rotate frame
+			sthresh = np.rot90(np.rot90(sthresh)) # Rotate frame
+			vthresh = np.rot90(np.rot90(vthresh)) # Rotate frame
+			closing = np.rot90(np.rot90(closing)) # Rotate frame
+
+			#Show the result in frames
+			cv2.imshow('HueComp',hthresh)
+			cv2.imshow('SatComp',sthresh)
+			cv2.imshow('ValComp',vthresh)
+			cv2.imshow('closing',closing)
+
+def writeSerial(usb, data):
+	port.write(str(data)+"\n") if usb else None
+
 def makeTrackbars(lb, ub):
 	# Creating track bar for min and max for hue, saturation and value
 	# You can adjust the defaults as you like
@@ -201,7 +204,7 @@ def getBounds():
 
 	return (hmn,smn,vmn), (hmx,smx,vmx)
 
-def moveServo(x, y, dcx, dcy):
+def moveServo(x, y, dcx, dcy, pwm_p, pwm_t):
 	print("Moving Servo")
 	if y > 180 and dcy < 7.5:	# MOVE UP
 		dcy = dcy + 0.05
@@ -217,6 +220,8 @@ def moveServo(x, y, dcx, dcy):
 		dcx = dcx - 0.05
 		print("RIGHT x:" + str(x) + " dc: " + str(dcx))
 
+	pwm_p.ChangeDutyCycle(dcx)
+	pwm_t.ChangeDutyCycle(dcy)
 
 	return dcx, dcy
 
@@ -225,4 +230,4 @@ def moveServo(x, y, dcx, dcy):
 #####################
 
 if __name__ == "__main__":
-	main()
+	main(usb, servo, windows, lowerbound, upperbound)
