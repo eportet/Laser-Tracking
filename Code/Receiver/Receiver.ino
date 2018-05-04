@@ -19,7 +19,7 @@ const int pitch_pin   = D3;
 
 /* Radio setup */
 RF24 radio(ce, ss_radio); // CE, CSN
-byte addresses[][6] = {"1Node","2Node"};  
+byte addresses[][6] = {"1Node","2Node"};
 int8_t radio_data[2] = {0,0};
 
 /* MEMS Setup */
@@ -64,7 +64,7 @@ Servo pitch_servo, azimuth_servo;
 /* Control related varaibles and parameters */
 volatile double difX, difY;  // Current position of MEMS is volts
 volatile double incX, incY;  // Amount to move MEMS by in volts.
-const double inc = 0.2;      // Tunable parameter, higher --> Respond faster to input but risk 
+const double inc = 0.1;      // Tunable parameter, higher --> Respond faster to input but risk 
                              // oscillatory behavior
 double bufX[BUF_SIZE] = {};  // circular velocity filter X
 double bufY[BUF_SIZE] = {};  // circular velocity filter Y
@@ -78,6 +78,8 @@ const double initY = 15;
 
 // Tune for Servo response
 const double servo_inc = 0.01;
+
+void signal_setup();
 
 void setup() {
   pinMode(enable_pin, OUTPUT);
@@ -97,10 +99,10 @@ void setup() {
   SPI.setDataMode(SPI_MODE1);  // According to github library
 
   analogWrite(fclk_pin, 127, fclk_freq); // Begin Bessel filter clock set at 50% duty cycle
-
+  
   digitalWrite(enable_pin,LOW);
   initialization();
-  Serial.begin();
+  Serial.begin(9600);
   
   radio.begin();
   radio.openReadingPipe(0, addresses[0]);
@@ -113,11 +115,70 @@ void setup() {
   pitch_servo.attach(pitch_pin);
   azimuth_servo.writeMicroseconds((int)azimuth_servo_pos);
   pitch_servo.writeMicroseconds((int)pitch_servo_pos);
+
+  signal_setup();
 }
 
 void loop() {
   // Set analog voltage X+, X-, Y+, Y- from center (analog_bias) always at 80 V
   // Max voltage is 157 so max analog voltage is 157 - if you go beyond 157, the DAC will set to 80 V and your code won't work.
+
+  /* Coarse Tracking Stage */
+  /*String inString;
+  while(1){
+    while (Serial.available() > 0){
+      int inChar = Serial.read();
+        if (isDigit(inChar)) {
+          // convert the incoming byte to a char and add it to the string:
+          inString += (char)inChar;
+        }
+        else if (inChar == ',') {
+          azimuth_servo_pos = inString.toInt();
+          if (azimuth_servo_pos < 2000 and azimuth_servo_pos > 1000) 
+            azimuth_servo.writeMicroseconds(azimuth_servo_pos);
+          Serial.print("moving azimuth to ");
+          Serial.println(azimuth_servo_pos);
+          inString = "";
+        }
+        else if (inChar == '\n') {
+          pitch_servo_pos = inString.toInt();
+          if (pitch_servo_pos < 1500 and pitch_servo_pos > 800)
+            pitch_servo.writeMicroseconds(pitch_servo_pos);
+          Serial.print("moving pitch to ");
+          Serial.println(pitch_servo_pos);
+          inString = "";
+        }
+        else if (inChar == 'c'){
+          break;
+        }
+    }
+  }*/
+
+  /* Scanning Stage:
+   * Start at center and move out in circles or increasing radius
+   * set max radius to be 60 volts.
+   */
+  /*double radius = 0.5;
+  double angle = 0;
+  while(1){
+    if (angle > 2*3.1415926){
+      radius += 0.5;
+      angle = 0;
+    }
+    if (difX > 60 or difY > 60){
+      difX = 0;
+      difY = 0;
+    }
+    difX = radius * cos(angle);
+    difY = radius * sin(angle);
+    angle += 2/radius;
+    delay(1);
+    while(radio.available()) radio.read(&radio_data, sizeof(radio_data[0])*2);
+    if (radio_data[0] != 0 or radio_data[1] != 0) break;
+    setChannels(difX, difY);
+  }
+  difX = radius * cos(angle - 2/radius * 5);
+  difY = radius * sin(angle - 2/radius * 5);*/
 
   /* Control system initialization. Start laser beam at offset. */
   incX = 0;
@@ -127,6 +188,8 @@ void loop() {
   for (unsigned int k = 0 ; k < BUF_SIZE ; k++){
     bufX[k] = initX;
     bufY[k] = initY;
+    //bufX[k] = difX;
+    //bufY[k] = difY;
   }
   setChannels(difX, difY);
 
@@ -138,8 +201,12 @@ void loop() {
    * the radio buffer will go bazerk and things won't work.
    */
   while(1) {
+    unsigned long a = micros();
     while(! radio.available()); //wait for new communication
+    unsigned long b = micros();
+    Serial.println(b-a);
     radio.read(&radio_data, sizeof(radio_data[0])*2);
+    //if (radio_data[0] == 0 and radio_data[0] == 0 ) continue;
 
     /* incX and incY are the velocity vector of the target
      * based on an average of past 100 observed positions.
@@ -162,11 +229,19 @@ void loop() {
 
     /* Simple servo control algo */
     azimuth_servo_pos += (difY-initY) * servo_inc;
-    if (azimuth_servo_pos > 2000 or azimuth_servo_pos < 800) continue;
+    if (azimuth_servo_pos > 2200 or azimuth_servo_pos < 800) break;
     azimuth_servo.writeMicroseconds((int)azimuth_servo_pos);
     pitch_servo_pos -= (difX-initX) * servo_inc;
-    if (pitch_servo_pos > 2000 or pitch_servo_pos < 800) continue;
+    if (pitch_servo_pos > 1500 or pitch_servo_pos < 800) break;
     pitch_servo.writeMicroseconds((int)pitch_servo_pos);
+
+    /*Serial.print(difX);
+    Serial.print(',');
+    Serial.print(difY);
+    Serial.print(',');
+    Serial.print(azimuth_servo_pos);
+    Serial.print(',');
+    Serial.println(pitch_servo_pos);*/
     /*serial_counter++;
     if (serial_counter > 50){
       Serial.print(difX);
@@ -269,3 +344,13 @@ void powerdown() {
   //delay(1);
   digitalWrite(ss,LOW);
 }
+
+void signal_setup()
+{
+  pinMode(D1, OUTPUT);
+  analogWrite(D1, 256/2, 10000);
+}
+
+
+
+
